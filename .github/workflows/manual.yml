@@ -20,14 +20,63 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
+        distribution: temurin # Specify the JDK vendor, e.g., temurin or zulu
+        java-package: jdk
+        check-latest: false
+        server-id: github
+        server-username: ${{ github.actor }}
+        server-password: ${{ secrets.GITHUB_TOKEN }}
+        overwrite-settings: true
 
     # Step 3: Install SonarQube Scanner
     - name: Install SonarQube Scanner
       run: |
-        curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.1.2.42216-linux.zip -o sonar-scanner.zip
-        unzip sonar-scanner.zip -d $HOME
-        export PATH=$HOME/sonar-scanner-5.1.2.42216-linux/bin:$PATH
+        name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Java (if needed for your project)
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+
+    # Step 3: Install SonarQube Scanner
+    - name: Install SonarQube Scanner
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+        unzip sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+        mv sonar-scanner-6.2.1.4610-linux-x64 /opt/sonar-scanner
+        export PATH=$PATH:/opt/sonar-scanner/bin
         sonar-scanner --version
+
+    # Step 4: Run SonarQube Analysis
+    # - name: Run SonarQube Analysis
+    #   env:
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #   run: |
+    #     sonar-scanner \
+    #       -Dsonar.projectKey=my_project_key \
+    #       -Dsonar.sources=. \
+    #       -Dsonar.host.url=https://<SONARQUBE_SERVER_URL> \
+    #       -Dsonar.login=$SONAR_TOKEN
+
+    #     unzip sonar-scanner.zip -d $HOME
+    #     export PATH=$HOME/sonar-scanner-5.1.2.42216-linux/bin:$PATH
+    #     sonar-scanner --version
 
     # Step 4: Run SonarQube Analysis
     # - name: Run SonarQube Analysis
