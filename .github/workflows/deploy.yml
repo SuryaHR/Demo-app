@@ -30,7 +30,7 @@ jobs:
     #   id: install
 
   Deploy:
-    runs-on: self-hosted,linux
+    runs-on: self-hosted
 
     steps:
 
