@@ -44,8 +44,9 @@ jobs:
       - name: Deploy charts
         run: |
           cd elasticsearch
-          helm install elasticsearch .
           helm uninstall elasticsearch
+          helm install elasticsearch .
+         
           
           
 
