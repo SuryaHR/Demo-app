@@ -1,0 +1,52 @@
+name: Deploy Helm charts
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  workflow_dispatch:
+
+jobs:
+  Pre-Config:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Checkout helm repository
+      uses: actions/checkout@v4
+      with:
+        repository: SuryaHR/helm-charts           # Replace with the actual repo
+        ref: main                             # Optional: branch, tag, or commit SHA
+        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Required if it's private
+
+    - name: install helm
+      uses: azure/setup-helm@v4.3.0
+      with:
+        version: 'default' # default is latest (stable)
+        id: install
+
+  Deploy:
+    runs-on: self-hosted,linux
+
+    steps:
+
+      - name: Checkout helm repository
+        uses: actions/checkout@v4
+        with:
+          repository: SuryaHR/helm-charts           # Replace with the actual repo
+          ref: main                             # Optional: branch, tag, or commit SHA
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Required if it's private
+
+      - name: Deploy charts
+        run: |
+          cd elasticsearch
+          helm install elasticsearch .
+          
+          
+
+
+    
